@@ -240,7 +240,7 @@ public static partial class RanteManifest
                 if (author.TryGetProperty("email", out var email) &&
                     (email.ValueKind != JsonValueKind.String || email.GetString()!.Length > 254 || !IsEmail(email.GetString()!)))
                 {
-                    Add("author.email", "\"author.email\" must be an email address.");
+                    Add("author.email", "\"author.email\" must be an email address (no control or invisible formatting characters).");
                 }
 
                 if (author.TryGetProperty("url", out var url) && HttpsUrlProblem(url, "\"author.url\"") is { } urlProblem)
@@ -404,8 +404,12 @@ public static partial class RanteManifest
         return false;
     }
 
-    /// <summary>The reference CLI's email rule: no whitespace (as JavaScript sees it) and the shape local@domain.tld.</summary>
-    private static bool IsEmail(string value) => !HasJsWhitespace(value) && EmailShape().IsMatch(value);
+    /// <summary>
+    /// The reference CLI's email rule: no control or invisible formatting characters, no whitespace (as JavaScript
+    /// sees it) and the shape local@domain.tld.
+    /// </summary>
+    private static bool IsEmail(string value) =>
+        !HasControl(value) && !HasInvisible(value) && !HasJsWhitespace(value) && EmailShape().IsMatch(value);
 
     private static bool HasInvisible(string value)
     {
@@ -495,7 +499,15 @@ public static partial class RanteManifest
             return $"{label} must not contain a #fragment.";
         }
 
-        var host = uri.Host.ToLowerInvariant();
+        // The ASCII (punycode) host, as JavaScript's URL parser gives it.
+        var host = uri.IdnHost.ToLowerInvariant();
+
+        // "localhost." and "intranet." are the same hosts as "localhost" and "intranet".
+        if (host.EndsWith('.'))
+        {
+            return $"{label} has a host name that ends with a dot ({host}).";
+        }
+
         if (host == "localhost" || host.EndsWith(".localhost", StringComparison.Ordinal) ||
             uri.HostNameType is UriHostNameType.IPv4 or UriHostNameType.IPv6)
         {
@@ -505,6 +517,13 @@ public static partial class RanteManifest
         if (!host.Contains('.'))
         {
             return $"{label} must use a fully qualified host name.";
+        }
+
+        // Every top-level domain starts with a letter; a numeric last part is an IP address in some URL parsers.
+        var last = host[(host.LastIndexOf('.') + 1)..];
+        if (last.Length == 0 || last[0] is < 'a' or > 'z')
+        {
+            return $"{label} must use a host name whose last part starts with a letter, not {host}.";
         }
 
         return null;
