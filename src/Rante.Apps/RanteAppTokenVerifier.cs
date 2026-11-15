@@ -292,8 +292,9 @@ public sealed partial class RanteAppTokenVerifier
             ValidateIssuerSigningKey = false,
             ValidateIssuer = false,
             ValidateAudience = false,
-            ValidateLifetime = true,
-            RequireExpirationTime = true,
+            // exp, nbf and iat are checked below, with the same rules as every other Rante Apps SDK.
+            ValidateLifetime = false,
+            RequireExpirationTime = false,
             RequireSignedTokens = true,
             ClockSkew = _clockSkew,
             ValidAlgorithms = _algorithms,
@@ -326,6 +327,18 @@ public sealed partial class RanteAppTokenVerifier
         }
 
         var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var skew = _clockSkew.TotalSeconds;
+        var exp = NumberProperty(root, "exp") ?? throw Invalid("The access token has no expiry (exp).");
+        if (exp <= now - skew)
+        {
+            throw new RanteAppsException("token_expired", "The access token has expired.");
+        }
+
+        if (root.TryGetProperty("nbf", out _) && (NumberProperty(root, "nbf") is not { } nbf || nbf > now + skew))
+        {
+            throw Invalid("The access token is not valid yet (nbf).");
+        }
+
         var tid = StringProperty(root, "tid");
         if (!IsGuid(tid))
         {
@@ -390,7 +403,6 @@ public sealed partial class RanteAppTokenVerifier
             }
         }
 
-        var exp = NumberProperty(root, "exp") ?? throw Invalid("The access token has no expiry (exp).");
         return new RanteAppPrincipal
         {
             UserId = oid!.ToLowerInvariant(),
