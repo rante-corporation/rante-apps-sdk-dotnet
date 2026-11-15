@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Rante.Apps.Packaging</RootNamespace>
+    <PackageId>Rante.Apps.Packaging</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Rante Corporation</Authors>
+    <Description>Checks Rante app packages (.rante) and manifest.json the way Rante's servers do: ZIP signature and size, strict manifest validation, allowed file types, zip-slip paths, zip-bomb limits, CRC-32. No dependencies.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rante-corporation/rante-apps-sdk-dotnet</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <InternalsVisibleTo Include="Rante.Apps.Packaging.Tests" />
+  </ItemGroup>
+
+</Project>

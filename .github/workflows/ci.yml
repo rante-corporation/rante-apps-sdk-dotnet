@@ -28,3 +28,20 @@ jobs:
         run: dotnet build RanteApps.sln --configuration Release
       - name: Test
         run: dotnet test RanteApps.sln --configuration Release --no-build
+
+  vectors:
+    name: Package vectors agree with the reference CLI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check out the reference CLI (rante-apps-sdk)
+        uses: actions/checkout@v7
+        with:
+          repository: rante-corporation/rante-apps-sdk
+          path: reference
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Run the vectors through the reference CLI
+        run: node tools/check-vectors.mjs reference
