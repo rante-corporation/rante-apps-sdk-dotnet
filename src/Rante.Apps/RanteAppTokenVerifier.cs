@@ -550,8 +550,9 @@ public sealed partial class RanteAppTokenVerifier
     private static RanteAppsException Map(Exception? exception) => exception switch
     {
         SecurityTokenExpiredException => new RanteAppsException("token_expired", "The access token has expired.", null, exception),
-        SecurityTokenInvalidSignatureException => Invalid("The access token signature is not valid.", exception),
+        // SecurityTokenSignatureKeyNotFoundException derives from SecurityTokenInvalidSignatureException: it goes first.
         SecurityTokenSignatureKeyNotFoundException => Invalid("No signing key of Rante Login matches the access token.", exception),
+        SecurityTokenInvalidSignatureException => Invalid("The access token signature is not valid.", exception),
         SecurityTokenNotYetValidException => Invalid("The access token is not valid yet (nbf).", exception),
         SecurityTokenNoExpirationException => Invalid("The access token has no expiry (exp).", exception),
         SecurityTokenInvalidAlgorithmException => Invalid("The access token's algorithm is not accepted.", exception),
