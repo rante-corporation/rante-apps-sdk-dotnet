@@ -149,7 +149,11 @@
     { "name": "external entry point on a hexadecimal IPv4 address", "base": "external", "set": { "entryPoint": "https://0x7f.1/" }, "fields": ["entryPoint"] },
     { "name": "external entry point with a numeric last part", "base": "external", "set": { "entryPoint": "https://app.example.123/" }, "fields": ["entryPoint"] },
     { "name": "external entry point on an IDN top-level domain", "base": "external", "set": { "entryPoint": "https://app.xn--zckzah/" }, "fields": [] },
-    { "name": "an external icon on localhost with a trailing dot", "base": "external", "set": { "icon": "https://localhost./icon.png" }, "fields": ["icon"] }
+    { "name": "an external icon on localhost with a trailing dot", "base": "external", "set": { "icon": "https://localhost./icon.png" }, "fields": ["icon"] },
+    { "name": "a version with an Arabic-Indic digit", "base": "bundle", "set": { "version": "1{U+0661}.0.0" }, "fields": ["version"] },
+    { "name": "a version with a fullwidth digit", "base": "bundle", "set": { "version": "1.0.1{U+FF11}" }, "fields": ["version"] },
+    { "name": "a prerelease with a non-ASCII digit", "base": "bundle", "set": { "version": "1.0.0-rc.{U+0662}" }, "fields": ["version"] },
+    { "name": "connect with a non-ASCII port digit", "base": "bundle", "set": { "connect": ["https://api.example.com:44{U+0663}"] }, "fields": ["connect[0]"] }
   ],
   "raw": [
     { "name": "a repeated property", "text": "{\"name\":\"a\",\"name\":\"b\"}", "code": "manifest_invalid_json" },

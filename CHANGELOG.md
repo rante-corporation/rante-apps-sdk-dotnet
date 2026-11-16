@@ -16,3 +16,5 @@
   overlapping entries; inflation capped at the declared size; CRC-32), manifest.json rules, allowed file types and
   executable sniffing, zip-slip paths, duplicates, symbolic links and zip-bomb limits. Its path and manifest cases
   run through the JavaScript CLI in CI too.
+- Versions and connect ports take ASCII digits only, like the CLI (.NET's `\d` matched every Unicode digit, and a
+  non-ASCII port digit made `RanteManifest.Validate` throw).

@@ -55,14 +55,15 @@ public static partial class RanteManifest
     [GeneratedRegex(@"^0{8}-0{4}-0{4}-0{4}-0{12}\z", RegexOptions.CultureInvariant)]
     private static partial Regex EmptyGuid();
 
-    [GeneratedRegex(@"^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?\z", RegexOptions.CultureInvariant)]
+    // [0-9], never \d: .NET's \d matches every Unicode decimal digit, JavaScript's (the reference CLI) only 0-9.
+    [GeneratedRegex(@"^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?\z", RegexOptions.CultureInvariant)]
     private static partial Regex Semver();
 
     // Whitespace is checked by HasJsWhitespace (see IsEmail): .NET's \s is not JavaScript's \s.
     [GeneratedRegex(@"^[^@<>()"",;:\\\[\]]+@[^@<>()"",;:\\\[\]]+\.[^@<>()"",;:\\\[\]]+\z", RegexOptions.CultureInvariant)]
     private static partial Regex EmailShape();
 
-    [GeneratedRegex(@"^(https|wss)://(\*\.)?((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)(?::(\d{1,5}))?\z", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^(https|wss)://(\*\.)?((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)(?::([0-9]{1,5}))?\z", RegexOptions.CultureInvariant)]
     private static partial Regex ConnectSource();
 
     [GeneratedRegex(@"^https?:", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
@@ -347,7 +348,7 @@ public static partial class RanteManifest
                         Add(field, $"{text} is too broad: a wildcard needs at least two labels after \"*.\".");
                     }
 
-                    if (m.Groups[4].Success && (int.Parse(m.Groups[4].Value) < 1 || int.Parse(m.Groups[4].Value) > 65535))
+                    if (m.Groups[4].Success && int.Parse(m.Groups[4].Value, CultureInfo.InvariantCulture) is < 1 or > 65535)
                     {
                         Add(field, $"{text} has an invalid port.");
                     }
